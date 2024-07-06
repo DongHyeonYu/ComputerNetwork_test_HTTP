@@ -35,7 +35,6 @@ def another_request():
 	return
 
 def GET(path):
-	# Route Path
 	# CASE1 GET Request 200 OK
 	# path : /
 	if path == "/":
@@ -57,17 +56,23 @@ def GET(path):
 	return
 
 def POST(connectionSocket, message, path):
+	# CASE3 PUT Request 100 Continue
+	# path: /
 	if "Expect: 100-Continue" in message and path == "/":
 		response_line = "HTTP/1.1 100 Continue\r\n\r\n"
 		connectionSocket.send(response_line.encode())
 		body = connectionSocket.recv(1024).decode().lstrip().rstrip().upper()
 		
+		# CASE4 PUT Request 200 OK
 		if 0<len(body)<=30:
 			final_response_line = "HTTP/1.1 200 OK\r\n"
 			header = "Content-Type: text/html\r\n\r\n"
 			response_body = f"<html><body><h1>{body}</h1></body></html>"
 			response = final_response_line + header + response_body
 			connectionSocket.send(response.encode())
+		
+		# CASE5 PUT Request 400 Bad Request
+		# Cause - Body is Empty String
 		else:
 			final_resopnse_line = "HTTP/1.1 400 Bad Request\r\n"
 			header = "Content-Type: text/html\r\n\r\n"
@@ -75,6 +80,8 @@ def POST(connectionSocket, message, path):
 			response = final_resopnse_line + header + response_body
 			connectionSocket.send(response.encode())
 	
+	# CASE6 POST Request 404 Not Found Error
+	# path : /NotFoundError
 	else:
 		response_line = "HTTP/1.1 404 Not Found\r\n"
 		header = "Content-Type: text/html\r\n\r\n"
@@ -84,11 +91,16 @@ def POST(connectionSocket, message, path):
 	return
 
 def HEAD(path):
+	# CASE7 HEAD Request 200 OK
+	# path : /
 	if path == "/":
 		response_line = "HTTP/1.1 200 OK\r\n"
 		header = "Content-Type: text/html\r\n\r\n"
 		response = response_line + header
 		connectionSocket.send(response.encode())
+	
+	# CASE8 HEAD Request 404 Not Found Error
+	# path : /NotFoundError
 	else:
 		response_line = "HTTP/1.1 404 Not Found\r\n"
 		header = "Content-Type: text/html\r\n\r\n"
@@ -106,6 +118,8 @@ def PUT(connectionSocket, message, path):
 			content_length = int(header.split(":")[1].strip())
 			break
 	max_size = 8192
+	# CASE10 PUT Request 400 Bad Request
+	# Cause - File size too large
 	if content_length > max_size:
 		response_line = "HTTP/1.1 400 Bad Request\r\n"
 		headers = "Content-Type: text/html\r\n\r\n"
@@ -114,6 +128,7 @@ def PUT(connectionSocket, message, path):
 		connectionSocket.send(response.encode())
 		return
 	
+	# CASE9 PUT Request 200 OK
 	if "Expect: 100-Continue" in message:
 		response_line = "HTTP/1.1 100 Continue\r\n\r\n"
 		connectionSocket.send(response_line.encode())
@@ -135,11 +150,14 @@ while True:
 	print("Connection from", addr)
 	
 	try:
+		# Receive Message From Client
 		message = connectionSocket.recv(1024).decode()
 		print("Received request")
 		print(message)
 		
+		# Message Parsing
 		lines, request_line, method, path = request_parser(message)
+		
 		# Request_GET
 		if method == "GET":
 			GET(path)
@@ -150,16 +168,19 @@ while True:
 		
 		# Request_POST
 		elif method == "POST":
+			# Add parameter "connectionSocket" to receive request body
 			POST(connectionSocket, message, path)
 		
 		# Request_PUT
 		elif method == "PUT":
+			# Add parameter "connectionSocket" to receive request body
 			PUT(connectionSocket, message, path)
 
-		# Wrong Request (Not included in HTTP request)
+		# Wrong Request (Not in [GET, POST, HEAD, PUT])
 		else:
 			another_request()
 	
+	# Server Error
 	except Exception as e:
 		print("Error:", e)
 		response_line = "HTTP/1.1 500 Internal Server Error\r\n"
