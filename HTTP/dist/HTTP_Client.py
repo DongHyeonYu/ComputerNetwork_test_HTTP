@@ -1,6 +1,6 @@
 from socket import *
 
-serverName = '192.168.0.22'
+serverName = 'localhost'
 serverPort = 8080
 def CASE1():
     print("----------------------------------------")
