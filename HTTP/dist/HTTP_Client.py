@@ -1,6 +1,6 @@
 from socket import *
 
-serverName = 'localhost'
+serverName = '192.168.0.22'
 serverPort = 8080
 def CASE1():
     print("----------------------------------------")
@@ -45,6 +45,7 @@ def CASE2():
 
 
 def CASE3_4():
+    # CASE3 & CASE4 - POST 100 Continue and 200 OK
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect((serverName,serverPort))
     
@@ -79,6 +80,7 @@ def CASE3_4():
 
     
 def CASE5():
+    # CASE5 - POST 400 Bad Request(with empty string)
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect((serverName,serverPort))
     message = " "
@@ -106,6 +108,7 @@ def CASE5():
 
     
 def CASE6():
+    # CASE6 - POST 404 Not Found
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect((serverName,serverPort))
     message = "hello world"
@@ -127,6 +130,7 @@ def CASE6():
     return request, response
 
 def CASE7():
+    # CASE7 - HEAD 200 OK
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect((serverName, serverPort))
     request_line = "HEAD / HTTP/1.1\r\n"
@@ -145,6 +149,7 @@ def CASE7():
 
 
 def CASE8():
+    # CASE8 - HEAD 404 Not Found Error
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect((serverName, serverPort))
     request_line = "HEAD /NotFoundError HTTP/1.1\r\n"
@@ -163,6 +168,7 @@ def CASE8():
 
 
 def CASE9():
+    # CASE9 - PUT 200 OK
     filename = "test.jpeg"
     content_type = "image/jpeg"
     
@@ -193,6 +199,7 @@ def CASE9():
 
    
 def CASE10():
+    # CASE10 - PUT 400 Bad Request
     filename = ("400_Bad_Request.png")
     content_type = "image/png"
     with open(filename, "rb") as file:
@@ -217,7 +224,7 @@ def CASE10():
 
     
     
-if __name__ == "__main__":
+if __name__ == "__main__":D
     CASE1()
     CASE2()
     CASE3_4()
